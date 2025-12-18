@@ -1,4 +1,4 @@
-# 📄 Projet Azure Cloud Computing (Examen E4) : Dossier de Conception Détaillé
+# 📄 Projet Azure Cloud Computing (Examen E4) 
 
 ## 📅 Contexte et Objectifs
 
