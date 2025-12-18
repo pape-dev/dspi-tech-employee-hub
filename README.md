@@ -559,6 +559,7 @@ Ce projet valide les compétences suivantes :
 
 ---
 
+
 # Application Web : DSPI-TECH Employee Hub
 
 Application web complète de gestion des employés et des contacts pour DSPI-TECH. Cette application permet de gérer les informations des collaborateurs, d'ajouter de nouveaux employés, de consulter les données et d'exporter les informations au format CSV.
@@ -1054,5 +1055,3 @@ Ce projet est privé et propriétaire de DSPI-TECH.
 Pour toute question ou problème, contactez l'équipe DSPI-TECH.
 
 ---
-
-
