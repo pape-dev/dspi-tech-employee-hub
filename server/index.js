@@ -104,6 +104,43 @@ app.post("/api/employees", async (req, res) => {
   }
 });
 
+// Récupérer tous les contacts
+app.get("/api/contact", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM contact ORDER BY created_at DESC");
+    console.log(`Récupération de ${rows.length} contact(s)`);
+    res.json(rows);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des contacts :", error);
+    res.status(500).json({ error: "Erreur serveur", details: error.message });
+  }
+});
+
+// Insérer un nouveau contact
+app.post("/api/contact", async (req, res) => {
+  const { name, email, subject, message } = req.body;
+
+  if (!name || !email || !subject || !message) {
+    return res.status(400).json({ error: "Données contact manquantes" });
+  }
+
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO contact (name, email, subject, message)
+       VALUES (?, ?, ?, ?)`,
+      [name, email, subject, message]
+    );
+
+    res.status(201).json({
+      message: "Contact créé",
+      id: result.insertId,
+    });
+  } catch (error) {
+    console.error("Erreur lors de l'insertion du contact :", error);
+    res.status(500).json({ error: "Erreur serveur", details: error.message });
+  }
+});
+
 app.listen(PORT, "127.0.0.1", () => {
   console.log(`Serveur API démarré sur http://localhost:${PORT}`);
 });

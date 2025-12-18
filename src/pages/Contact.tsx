@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import {
   MessageSquare,
   Globe,
   Linkedin,
-  Twitter,
+  Download,
 } from "lucide-react";
 
 const contactInfo = [
@@ -42,7 +42,6 @@ const contactInfo = [
 
 const socialLinks = [
   { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Twitter, href: "#", label: "Twitter" },
   { icon: Globe, href: "#", label: "Website" },
 ];
 
@@ -60,20 +59,108 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || "";
 
-    toast({
-      title: "Message envoyé !",
-      description: "Nous vous répondrons dans les plus brefs délais.",
-    });
+      const response = await fetch(`${baseUrl}/api/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        }),
+      });
 
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setIsSubmitting(false);
+      if (!response.ok) {
+        throw new Error(`Erreur API (${response.status})`);
+      }
+
+      toast({
+        title: "Message envoyé !",
+        description: "Nous vous répondrons dans les plus brefs délais.",
+      });
+
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message :", error);
+      toast({
+        title: "Erreur lors de l'envoi",
+        description: "Impossible d'envoyer le message. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || "";
+
+      const response = await fetch(`${baseUrl}/api/contact`);
+      if (!response.ok) {
+        throw new Error(`Erreur API (${response.status})`);
+      }
+
+      const contacts = await response.json();
+
+      if (contacts.length === 0) {
+        toast({
+          title: "Aucune donnée",
+          description: "Il n'y a aucun contact à exporter.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Créer le contenu CSV
+      const headers = ["ID", "Nom", "Email", "Sujet", "Message", "Date de création"];
+      const csvRows = [
+        headers.join(","),
+        ...contacts.map((contact: any) => {
+          const row = [
+            contact.id,
+            `"${contact.name.replace(/"/g, '""')}"`,
+            `"${contact.email.replace(/"/g, '""')}"`,
+            `"${contact.subject.replace(/"/g, '""')}"`,
+            `"${contact.message.replace(/"/g, '""').replace(/\n/g, " ")}"`,
+            `"${new Date(contact.created_at).toLocaleString("fr-FR")}"`,
+          ];
+          return row.join(",");
+        }),
+      ];
+
+      const csvContent = csvRows.join("\n");
+      const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `contacts_${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export réussi !",
+        description: `${contacts.length} contact(s) exporté(s) en CSV.`,
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'export CSV :", error);
+      toast({
+        title: "Erreur lors de l'export",
+        description: "Impossible d'exporter les contacts. Vérifiez l'API.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -148,10 +235,22 @@ export default function Contact() {
               className="glass rounded-2xl p-6 md:p-8 animate-slide-up"
               style={{ animationDelay: "0.2s" }}
             >
-              <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                <Send className="w-5 h-5 text-primary" />
-                Envoyez-nous un message
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Send className="w-5 h-5 text-primary" />
+                  Envoyez-nous un message
+                </h2>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportCSV}
+                  className="gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Exporter
+                </Button>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="space-y-2">
