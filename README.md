@@ -498,28 +498,43 @@ pm2 save
 ## Statut du pm2
 
 - VM 1
-![image](https://hackmd.io/_uploads/S1s94hZmWe.png)
+
+```
+pm2 status
+```
 
 - VM 2
-![image](https://hackmd.io/_uploads/H1eRE2Z7Zg.png)
+```
+pm2 status
+```
 
 
 ## Se connecter à l'application
 
-- VM 1  : 20.251.223.213
-![image](https://hackmd.io/_uploads/rkTeHnbXWx.png)
-![image](https://hackmd.io/_uploads/B1jMB2bQbg.png)
+- VM 1  : IP publique
 
-- VM 2 : 4.235.106.204
-![image](https://hackmd.io/_uploads/HJzqS2-7Wx.png)
-![image](https://hackmd.io/_uploads/BkJnS2b7-l.png)
+- VM 2 : Ip Publique
+
 
 ## Vérifier les insertions de la base de données
-![image](https://hackmd.io/_uploads/HJ0CBn-7We.png)
+## 📊 Requêtes SQL pour la base `appdb`
+
+Pour afficher les données des tables `employees` et `contact` :
+
+```sql
+-- Sélection de la base
+USE appdb;
+
+-- Afficher tous les employés
+SELECT * FROM employees;
+
+-- Afficher tous les contacts
+SELECT * FROM contact;
+
 
 # Configuration du load balancer
-![image](https://hackmd.io/_uploads/By5JKnZ7Wx.png)
-![image](https://hackmd.io/_uploads/BJbNFh-mZx.png)
+
+[Documentation Microsoft Azure : Load Balancer](https://learn.microsoft.com/en-us/azure/load-balancer/quickstart-load-balancer-standard-public-cli)
 
 ## Au niveau du code > VM 1 & VM 2 Mettre à jour la configuration du nginx
 
@@ -539,13 +554,9 @@ pm2 restart api-backend
 
 ```
 ## Se connecter avec l'IP du Load Balancer 
-![image](https://hackmd.io/_uploads/BkYml6-QWe.png)
-Le load Balancer affiche L'App de la VM 1 : 
-![image](https://hackmd.io/_uploads/B1lyfp-Q-l.png)
-On actualise la page il affiche l'App de la VM 2 :
-![image](https://hackmd.io/_uploads/SJUempZ7-g.png)
-![image](https://hackmd.io/_uploads/Bk5m7pbXbx.png)
-
+>> IP Publique
+Le load Balancer affiche L'App de la VM 1 
+On actualise la page il affiche l'App de la VM 2 
 
 ---
 
