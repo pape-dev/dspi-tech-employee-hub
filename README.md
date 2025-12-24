@@ -1,4 +1,4 @@
-# 📄 Projet Azure Cloud Computing (Examen E4) : Dossier de Conception Détaillé
+# 📄 Projet Azure Cloud Computing (Examen E4 CCSN) 
 
 ![Azure](https://img.shields.io/badge/Cloud-Microsoft%20Azure-0089D6?style=flat&logo=microsoftazure)
 ![PowerShell](https://img.shields.io/badge/Automation-PowerShell-5391FE?style=flat&logo=powershell)
