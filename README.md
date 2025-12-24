@@ -1055,3 +1055,139 @@ Ce projet est privé et propriétaire de DSPI-TECH.
 Pour toute question ou problème, contactez l'équipe DSPI-TECH.
 
 ---
+
+# 🚀 Déploiement Infrastructure Azure App Service (Node.js)
+
+Ce script PowerShell automatise la création d'une infrastructure de production robuste et sécurisée sur Azure pour héberger une application **Node.js**.
+
+## 📋 Table des Matières
+- [Architecture](#architecture)
+- [Prérequis](#prérequis)
+- [Étapes du Déploiement](#étapes-du-déploiement)
+- [Sécurité & Monitoring](#sécurité--monitoring)
+- [Utilisation](#utilisation)
+
+---
+
+## 🏗 Architecture
+L'infrastructure déployée repose sur les composants suivants :
+* **Resource Group** : Conteneur logique pour organiser les ressources.
+* **App Service Plan (Linux)** : Le moteur de calcul (Tier Basic B1) optimisé pour Node.js.
+* **Web App** : L'instance d'hébergement de votre code.
+* **Application Insights** : Monitoring de performance et journalisation des erreurs en temps réel.
+
+
+
+---
+
+## 🛠 Prérequis
+1.  Un compte **Azure** actif.
+2.  **Azure PowerShell (Module Az)** installé ou utilisation via **Azure Cloud Shell**.
+3.  Droits de contributeur sur l'abonnement pour créer des ressources.
+
+---
+
+## 🚀 Étapes du Déploiement
+
+Le script suit un processus en 5 étapes clés :
+
+1.  **Initialisation du Groupe de Ressources** : Création de l'espace de travail dans la région `Norway East` (Norvège).
+2.  **Configuration du Monitoring** : Déploiement d'Application Insights pour surveiller la santé de l'application.
+3.  **Provisionnement du Plan Linux** : Création d'un serveur dédié sous Linux (plus performant pour Node.js).
+4.  **Configuration du Runtime** : Verrouillage de la stack technique sur **Node.js 20 LTS**.
+5.  **Injection des Variables** : Configuration automatique des clés de monitoring et de l'environnement (`NODE_ENV=production`).
+
+---
+
+## 🔒 Sécurité & Monitoring
+Le script applique les standards de sécurité "Enterprise" :
+* **HTTPS Only** : Redirection automatique du trafic HTTP vers HTTPS.
+* **TLS 1.2** : Désactivation des protocoles SSL/TLS obsolètes.
+* **Variables d'environnement** : Aucune clé n'est stockée en dur dans le code ; elles sont injectées directement dans les `App Settings` d'Azure.
+
+---
+
+## 💻 Utilisation
+
+1.  Ouvrez votre terminal (ou Azure Cloud Shell).
+2.  Copiez et collez le script `deployAppService.ps1`.
+```
+<#
+.SYNOPSIS
+    Script de déploiement d'infrastructure Azure Web App Pro.
+.DESCRIPTION
+    Version corrigée pour une compatibilité totale avec Azure Cloud Shell.
+#>
+
+# --- 1. CONFIGURATION TOUT-EN-UN ---
+$config = @{
+    RGName      = "rg-node-prod-norway"
+    Location    = "norwayeast"
+    PlanName    = "asp-node-linux-premium"
+    AppName     = "webapp-node-$(Get-Random -Minimum 1000 -Maximum 9999)"
+    SkuTier     = "Basic"
+    SkuSize     = "B1"
+    Runtime     = "NODE|20-lts"
+}
+
+$tags = @{
+    Environment = "Production"
+    Project     = "Project-Azure-dspi"
+}
+
+Write-Host "`n[1/5] Préparation du Groupe de Ressources..." -ForegroundColor Magenta
+if (!(Get-AzResourceGroup -Name $config.RGName -ErrorAction SilentlyContinue)) {
+    New-AzResourceGroup -Name $config.RGName -Location $config.Location -Tag $tags -Force | Out-Null
+}
+
+# --- 2. MONITORING ---
+Write-Host "[2/5] Configuration du monitoring (App Insights)..." -ForegroundColor Cyan
+$appInsights = New-AzApplicationInsights -ResourceGroupName $config.RGName `
+    -Name "$($config.AppName)-insights" -Location $config.Location -Force
+
+# --- 3. PLAN ET WEB APP ---
+Write-Host "[3/5] Création des services App Service Linux..." -ForegroundColor Cyan
+$plan = New-AzAppServicePlan -Name $config.PlanName -ResourceGroupName $config.RGName `
+    -Location $config.Location -Tier $config.SkuTier -NumberofWorkers 1 `
+    -WorkerSize "Small" -Linux -ErrorAction Stop
+
+$webApp = New-AzWebApp -Name $config.AppName -ResourceGroupName $config.RGName `
+    -Location $config.Location -AppServicePlan $config.PlanName
+
+# --- 4. CONFIGURATION SÉCURITÉ ET RUNTIME ---
+Write-Host "[4/5] Application de la configuration système..." -ForegroundColor Cyan
+# On modifie l'objet WebApp
+$webApp.SiteConfig.LinuxFxVersion = $config.Runtime
+$webApp.HttpsOnly = $true
+$webApp.SiteConfig.MinTlsVersion = "1.2"
+
+# Action 1 : On enregistre les modifications système
+Set-AzWebApp -WebApp $webApp | Out-Null
+
+# --- 5. CONFIGURATION DES APP SETTINGS ---
+Write-Host "[5/5] Injection des variables d'environnement..." -ForegroundColor Cyan
+$appSettings = @{
+    "NODE_ENV"                              = "production"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"        = $appInsights.InstrumentationKey
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = $appInsights.ConnectionString
+}
+
+# Action 2 : On enregistre les AppSettings séparément (Méthode 100% compatible)
+Set-AzWebApp -ResourceGroupName $config.RGName -Name $config.AppName -AppSettings $appSettings | Out-Null
+
+# --- 6. RAPPORT FINAL ---
+Write-Host "`n=========================================================" -ForegroundColor Green
+Write-Host "             INFRASTRUCTURE PRÊTE AU DÉPLOIEMENT" -ForegroundColor Green
+Write-Host "========================================================="
+Write-Host " URL Publique    : https://$($config.AppName).azurewebsites.net"
+Write-Host " Groupe Ress.    : $($config.RGName)"
+Write-Host " Runtime         : $($config.Runtime)"
+Write-Host "========================================================="
+
+```
+
+4.  Une fois terminé, récupérez l'**URL Publique** affichée dans le rapport final.
+5.  Déployez votre code via le portail Azure, VS Code ou GitHub.
+
+---
+> **Note :** Le nom de la Web App est généré de manière aléatoire (`webapp-node-XXXX`) pour garantir l'unicité mondiale requise par Azure.
