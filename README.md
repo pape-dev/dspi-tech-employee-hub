@@ -1,4 +1,13 @@
-# 📄 Projet Azure Cloud Computing (Examen E4) 
+# 📄 Projet Azure Cloud Computing (Examen E4) : Dossier de Conception Détaillé
+
+# 🚀 Azure Enterprise Stack (V10.0)
+
+![Azure](https://img.shields.io/badge/Cloud-Microsoft%20Azure-0089D6?style=flat&logo=microsoftazure)
+![PowerShell](https://img.shields.io/badge/Automation-PowerShell-5391FE?style=flat&logo=powershell)
+![MySQL](https://img.shields.io/badge/Database-MySQL%20Flexible%20Server-4479A1?style=flat&logo=mysql)
+![Ubuntu](https://img.shields.io/badge/OS-Ubuntu_22.04_LTS-E95420?style=flat&logo=ubuntu)
+![Node.js](https://img.shields.io/badge/Runtime-Node.js_20_LTS-339933?style=flat&logo=nodedotjs)
+![Security](https://img.shields.io/badge/Security-Firewall_Active-success?style=flat)
 
 ## 📅 Contexte et Objectifs
 
@@ -84,8 +93,7 @@ Le déploiement sera effectué en utilisant une combinaison d'outils standards p
 
 ---
 
-# Configuration
-## Création du groupe de ressources - Vnet - NSG - deux VM linux
+# Partie 1 : Création du groupe de ressources - Vnet - NSG - deux VM linux
 ```
 # =============================================================================
 # SCRIPT D'AUTOMATISATION DU DÉPLOIEMENT D'INFRASTRUCTURE AZURE (IaaS)
@@ -186,9 +194,13 @@ Write-Host "---"
 az vm list -g $RESOURCE_GROUP -o table
 ```
 
-## Déploiement Azure Database pour MySQL
+
+# Partie 2 : Déploiement Azure Database pour MySQL
+
 ## Connexion au server pour la création de la base de données
 - MySQL Workbench
+
+
 - Création de la base de données et les table
 ```
 -- 1. Création de la base de données
@@ -236,7 +248,9 @@ CREATE TABLE IF NOT EXISTS contact (
 
 - Pare-feu de la base de données
 
-## 🐳 Installation Docker (Script Bash)
+
+
+# Partie 3 :  🐳 Installation Docker (Script Bash)
 
 - Créer un fichier bash et lui donner les autorisations
 
@@ -354,7 +368,7 @@ echo "Fichier de journalisation : $LOG_FILE"
 
 exit 0
 ```
-## 📦 Dépendances applicatives dans chaque VM
+# Partie 4 : 📦 Dépendances applicatives dans chaque VM
 ```
 sudo apt update && sudo apt upgrade -y
 # Installation de Node.js (via NodeSource pour avoir une version récente)
@@ -487,42 +501,23 @@ pm2 save
 
 - VM 1
 
-```
-pm2 status
-```
 
 - VM 2
-```
-pm2 status
-```
+
 
 
 ## Se connecter à l'application
 
-- VM 1  : IP publique
+- VM 1  : 20.251.223.213
 
-- VM 2 : Ip Publique
+
+- VM 2 : 4.235.106.204
 
 
 ## Vérifier les insertions de la base de données
-## 📊 Requêtes SQL pour la base `appdb`
-
-Pour afficher les données des tables `employees` et `contact` :
-
-```sql
--- Sélection de la base
-USE appdb;
-
--- Afficher tous les employés
-SELECT * FROM employees;
-
--- Afficher tous les contacts
-SELECT * FROM contact;
 
 
 # Configuration du load balancer
-
-[Documentation Microsoft Azure : Load Balancer](https://learn.microsoft.com/en-us/azure/load-balancer/quickstart-load-balancer-standard-public-cli)
 
 ## Au niveau du code > VM 1 & VM 2 Mettre à jour la configuration du nginx
 
@@ -531,7 +526,6 @@ sudo nano /etc/nginx/sites-available/mon_app
 
 ```
 Les IP "Server_Name" ont été remplacés par "_" : 
-![image](https://hackmd.io/_uploads/SyqYbaZQ-x.png)
 
 ```
 npm run build
@@ -542,11 +536,9 @@ pm2 restart api-backend
 
 ```
 ## Se connecter avec l'IP du Load Balancer 
->> IP Publique
-Le load Balancer affiche L'App de la VM 1 
-On actualise la page il affiche l'App de la VM 2 
 
 ---
+
 
 ## ✅ Conclusion
 Ce projet valide les compétences suivantes :
@@ -557,8 +549,9 @@ Ce projet valide les compétences suivantes :
 - Déployer & héberger des applications 
 - Sécurisation (Groupes de sécurité et SSH).
 
----
 
+
+---
 
 # Application Web : DSPI-TECH Employee Hub
 
@@ -997,6 +990,7 @@ L'application propose 4 pages principales :
 
 ```bash
 npm run build
+
 ```
 
 Les fichiers compilés seront dans le dossier `dist/`.
@@ -1042,21 +1036,10 @@ pm2 save
 - Les exports CSV incluent un BOM UTF-8 pour une compatibilité optimale avec Excel
 - Les filtres et tris sont appliqués côté client pour une meilleure performance
 
-## 📄 Licence
-
-Ce projet est privé et propriétaire de DSPI-TECH.
-
-## 👥 Auteurs
-
-- **DSPI-TECH** - Développement initial
-
-## 🆘 Support
-
-Pour toute question ou problème, contactez l'équipe DSPI-TECH.
 
 ---
 
-# 🚀 Déploiement Infrastructure Azure App Service (Node.js)
+# Partie 5 : 🚀 Déploiement Infrastructure Azure App Service (Node.js)
 
 Ce script PowerShell automatise la création d'une infrastructure de production robuste et sécurisée sur Azure pour héberger une application **Node.js**.
 
@@ -1191,3 +1174,19 @@ Write-Host "========================================================="
 
 ---
 > **Note :** Le nom de la Web App est généré de manière aléatoire (`webapp-node-XXXX`) pour garantir l'unicité mondiale requise par Azure.
+
+## 📄 Licence
+
+Ce projet est privé et propriétaire de DSPI-TECH.
+
+## 👥 Auteurs
+
+- **DSPI-TECH** - Développement initial
+
+## 🆘 Support
+
+Pour toute question ou problème, contactez l'équipe DSPI-TECH.
+
+
+
+
